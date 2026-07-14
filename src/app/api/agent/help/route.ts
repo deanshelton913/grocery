@@ -13,7 +13,8 @@ import { getSession } from "@/lib/auth";
 import { findListBySlug, findListByApiToken } from "@/lib/db";
 
 export async function GET(req: NextRequest) {
-  const origin = req.headers.get("origin") ?? req.headers.get("x-forwarded-host") ?? req.nextUrl.origin;
+  const origin =
+    req.headers.get("origin") ?? req.headers.get("x-forwarded-host") ?? req.nextUrl.origin;
   const base = origin.startsWith("http") ? origin : `https://${origin}`;
 
   // Try cookie session first, then Bearer token

@@ -34,8 +34,18 @@ const SERVER_INFO = { name: "pantry-ledger", version: "1.0.0" };
 
 const VALID_STATUSES = ["pending", "used", "partial", "wasted"] as const;
 const VALID_CATEGORIES = [
-  "produce","meat","dairy","bakery","frozen","pantry",
-  "snacks","beverages","condiments","deli","household","other",
+  "produce",
+  "meat",
+  "dairy",
+  "bakery",
+  "frozen",
+  "pantry",
+  "snacks",
+  "beverages",
+  "condiments",
+  "deli",
+  "household",
+  "other",
 ] as const;
 
 // ── tool definitions ──────────────────────────────────────────────────────────
@@ -152,7 +162,11 @@ async function callTool(listId: string, name: string, args: Record<string, unkno
     }
 
     case "update_item_status": {
-      const { tripId, itemId, status } = args as { tripId: string; itemId: string; status: Item["status"] };
+      const { tripId, itemId, status } = args as {
+        tripId: string;
+        itemId: string;
+        status: Item["status"];
+      };
       if (!VALID_STATUSES.includes(status)) throw new Error(`Invalid status: ${status}`);
       await updateItemStatus(listId, tripId, itemId, status);
       return `Item ${itemId} marked as "${status}".`;
@@ -185,8 +199,7 @@ async function callTool(listId: string, name: string, args: Record<string, unkno
     case "delete_item": {
       const { tripId, itemId } = args as { tripId: string; itemId: string };
       const db = supabaseAdmin();
-      await db.from("items").delete()
-        .eq("id", itemId).eq("trip_id", tripId).eq("list_id", listId);
+      await db.from("items").delete().eq("id", itemId).eq("trip_id", tripId).eq("list_id", listId);
       return `Item ${itemId} removed from trip ${tripId}.`;
     }
 

@@ -61,12 +61,12 @@ const CATEGORIES = [
 const catByKey = Object.fromEntries(CATEGORIES.map((c) => [c.key, c]));
 
 const LOCATIONS = [
-  { key: "fridge",  label: "Fridge",  icon: "🧊" },
-  { key: "freezer", label: "Freezer", icon: "❄️"  },
-  { key: "pantry",  label: "Pantry",  icon: "🗄️"  },
-  { key: "counter", label: "Counter", icon: "🍌"  },
+  { key: "fridge", label: "Fridge", icon: "🧊" },
+  { key: "freezer", label: "Freezer", icon: "❄️" },
+  { key: "pantry", label: "Pantry", icon: "🗄️" },
+  { key: "counter", label: "Counter", icon: "🍌" },
 ] as const;
-type LocationKey = typeof LOCATIONS[number]["key"];
+type LocationKey = (typeof LOCATIONS)[number]["key"];
 
 function cycleLocation(loc: LocationKey | undefined): LocationKey {
   const order: LocationKey[] = ["fridge", "freezer", "pantry", "counter"];
@@ -78,9 +78,9 @@ function cycleLocation(loc: LocationKey | undefined): LocationKey {
 const STATUS_ORDER: Item["status"][] = ["pending", "partial", "used", "wasted"];
 const STATUS = {
   pending: { label: "Available", color: COLORS.sageOnDark, icon: Circle },
-  partial: { label: "In Use",    color: COLORS.gold,       icon: Minus  },
-  used:    { label: "Used Up",   color: COLORS.sage,       icon: Check  },
-  wasted:  { label: "Wasted",    color: COLORS.rust,       icon: X      },
+  partial: { label: "In Use", color: COLORS.gold, icon: Minus },
+  used: { label: "Used Up", color: COLORS.sage, icon: Check },
+  wasted: { label: "Wasted", color: COLORS.rust, icon: X },
 };
 
 /* --------------------------------- helpers --------------------------------- */
@@ -189,13 +189,22 @@ function LocationBadge({ location, onCycle }: { location?: LocationKey; onCycle?
   const el = (
     <span
       className="font-body text-[10px] rounded-full px-1.5 py-0.5 flex-shrink-0 select-none"
-      style={{ background: `${COLORS.pageBgSoft}`, color: COLORS.sageOnDark, cursor: onCycle ? "pointer" : "default" }}
+      style={{
+        background: `${COLORS.pageBgSoft}`,
+        color: COLORS.sageOnDark,
+        cursor: onCycle ? "pointer" : "default",
+      }}
       title={onCycle ? `Storage: ${loc.label} — tap to change` : loc.label}
     >
       {loc.icon} {loc.label}
     </span>
   );
-  if (onCycle) return <button onClick={onCycle} className="flex-shrink-0">{el}</button>;
+  if (onCycle)
+    return (
+      <button onClick={onCycle} className="flex-shrink-0">
+        {el}
+      </button>
+    );
   return el;
 }
 
@@ -860,7 +869,9 @@ function ReceiptCard({
                       className="flex items-center justify-between gap-2 font-mono-ledger text-[12px]"
                       style={{
                         color: COLORS.ink,
-                        background: highlightItemIds.has(it.id) ? `${COLORS.gold}22` : "transparent",
+                        background: highlightItemIds.has(it.id)
+                          ? `${COLORS.gold}22`
+                          : "transparent",
                         borderRadius: 6,
                         padding: highlightItemIds.has(it.id) ? "2px 4px" : "2px 0",
                         marginLeft: highlightItemIds.has(it.id) ? -4 : 0,
@@ -1061,9 +1072,7 @@ function HistoryView({
     const filtered = sorted.filter((trip) => {
       const storeMatch = trip.store.toLowerCase().includes(q);
       const itemMatches = trip.items.filter(
-        (it) =>
-          it.name.toLowerCase().includes(q) ||
-          it.category.toLowerCase().includes(q)
+        (it) => it.name.toLowerCase().includes(q) || it.category.toLowerCase().includes(q)
       );
       itemMatches.forEach((it) => matched.add(it.id));
       return storeMatch || itemMatches.length > 0;
@@ -1081,7 +1090,10 @@ function HistoryView({
 
   if (sorted.length === 0) {
     return (
-      <div className="px-4 py-10 text-center font-body text-sm" style={{ color: COLORS.sageOnDark }}>
+      <div
+        className="px-4 py-10 text-center font-body text-sm"
+        style={{ color: COLORS.sageOnDark }}
+      >
         No trips logged yet. Tap &quot;Add Trip&quot; to get started.
       </div>
     );
@@ -1130,9 +1142,7 @@ function HistoryView({
               key={trip.id}
               trip={trip}
               expanded={effectiveExpandedId === trip.id}
-              onToggle={() =>
-                setExpandedId(effectiveExpandedId === trip.id ? null : trip.id)
-              }
+              onToggle={() => setExpandedId(effectiveExpandedId === trip.id ? null : trip.id)}
               onCycleStatus={onCycleStatus}
               onCycleLocation={onCycleLocation}
               onDelete={onDelete}

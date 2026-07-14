@@ -109,7 +109,6 @@ export default function AgentView() {
 
   return (
     <div className="px-4 pb-24 pt-4 space-y-5">
-
       {/* System prompt */}
       <div className="rounded-2xl p-4 space-y-3" style={{ background: C.paper }}>
         <div className="font-display text-base" style={{ color: C.ink }}>
@@ -144,13 +143,12 @@ export default function AgentView() {
         </div>
         <p className="font-body text-xs leading-relaxed" style={{ color: C.inkSoft }}>
           Add this to your{" "}
-          <span style={{ color: C.ink, fontWeight: 600 }}>claude_desktop_config.json</span>,
-          Cursor MCP settings, or Kiro MCP settings. The agent can then call your grocery list
-          directly using native MCP tools.
+          <span style={{ color: C.ink, fontWeight: 600 }}>claude_desktop_config.json</span>, Cursor
+          MCP settings, or Kiro MCP settings. The agent can then call your grocery list directly
+          using native MCP tools.
         </p>
         <CopyBlock label="MCP client config (JSON)" value={mcpConfig} />
       </div>
-
     </div>
   );
 }

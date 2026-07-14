@@ -40,10 +40,7 @@ function MealCard({ meal, onDismiss }: { meal: Meal; onDismiss: (id: string) => 
       {/* Header row: expand area + dismiss button side by side */}
       <div className="flex items-start px-4 pt-4 pb-3">
         {/* Clickable expand area */}
-        <button
-          onClick={() => setExpanded((e) => !e)}
-          className="flex-1 text-left min-w-0"
-        >
+        <button onClick={() => setExpanded((e) => !e)} className="flex-1 text-left min-w-0">
           <div className="flex items-start justify-between gap-2 pr-1">
             <div className="min-w-0 flex-1">
               <div className="font-display text-[16px] leading-tight" style={{ color: C.ink }}>
@@ -54,7 +51,9 @@ function MealCard({ meal, onDismiss }: { meal: Meal; onDismiss: (id: string) => 
                 <span className="font-body text-[11px]" style={{ color: C.inkSoft }}>
                   {meal.time}
                 </span>
-                <span className="font-body text-[11px] mx-1" style={{ color: C.inkSoft }}>·</span>
+                <span className="font-body text-[11px] mx-1" style={{ color: C.inkSoft }}>
+                  ·
+                </span>
                 <ShoppingBasket size={11} color={C.inkSoft} />
                 <span className="font-body text-[11px]" style={{ color: C.inkSoft }}>
                   {meal.uses.length} pantry item{meal.uses.length !== 1 ? "s" : ""}
@@ -97,10 +96,7 @@ function MealCard({ meal, onDismiss }: { meal: Meal; onDismiss: (id: string) => 
 
       {/* Expanded recipe */}
       {expanded && (
-        <div
-          className="px-4 pb-4 space-y-3"
-          style={{ borderTop: `1px dashed ${C.inkSoft}44` }}
-        >
+        <div className="px-4 pb-4 space-y-3" style={{ borderTop: `1px dashed ${C.inkSoft}44` }}>
           {/* Ingredients */}
           <div className="pt-3">
             <div
@@ -111,8 +107,15 @@ function MealCard({ meal, onDismiss }: { meal: Meal; onDismiss: (id: string) => 
             </div>
             <ul className="space-y-1">
               {meal.ingredients.map((ing, i) => (
-                <li key={i} className="flex items-start gap-2 font-body text-xs" style={{ color: C.ink }}>
-                  <span className="flex-shrink-0 w-1 h-1 rounded-full mt-1.5" style={{ background: C.gold }} />
+                <li
+                  key={i}
+                  className="flex items-start gap-2 font-body text-xs"
+                  style={{ color: C.ink }}
+                >
+                  <span
+                    className="flex-shrink-0 w-1 h-1 rounded-full mt-1.5"
+                    style={{ background: C.gold }}
+                  />
                   {ing}
                 </li>
               ))}
@@ -278,7 +281,11 @@ export default function MealsView({ trips }: { trips: Trip[] }) {
               <div className="h-3 rounded-lg w-1/3" style={{ background: C.paperSoft }} />
               <div className="flex gap-1 mt-2">
                 {[60, 80, 70].map((w, j) => (
-                  <div key={j} className="h-5 rounded-full" style={{ background: C.paperSoft, width: w }} />
+                  <div
+                    key={j}
+                    className="h-5 rounded-full"
+                    style={{ background: C.paperSoft, width: w }}
+                  />
                 ))}
               </div>
             </div>
@@ -303,7 +310,8 @@ export default function MealsView({ trips }: { trips: Trip[] }) {
       {!loading && !fetching && meals.length > 0 && (
         <div className="space-y-3">
           <div className="font-body text-[11px] px-1" style={{ color: C.sageOnDark }}>
-            {meals.length} meal suggestion{meals.length !== 1 ? "s" : ""} — tap a card to see the recipe
+            {meals.length} meal suggestion{meals.length !== 1 ? "s" : ""} — tap a card to see the
+            recipe
           </div>
           {meals.map((meal, i) => (
             <MealCard key={meal.id ?? i} meal={meal} onDismiss={handleDismiss} />

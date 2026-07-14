@@ -11,10 +11,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { findListByApiToken } from "@/lib/db";
 import { createSession, setSessionCookie } from "@/lib/auth";
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ token: string }> }
-) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
 
   const list = await findListByApiToken(token);

@@ -47,10 +47,7 @@ export async function POST(req: NextRequest) {
 
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
-    return NextResponse.json(
-      { error: "OPENROUTER_API_KEY is not configured" },
-      { status: 503 }
-    );
+    return NextResponse.json({ error: "OPENROUTER_API_KEY is not configured" }, { status: 503 });
   }
 
   // Optionally accept a filter from the body (e.g. only use specific items)
@@ -60,12 +57,11 @@ export async function POST(req: NextRequest) {
   const trips = await getTrips(session.listId);
 
   // Collect pending items across all trips
-  const pendingItems = trips
-    .flatMap((t) =>
-      t.items
-        .filter((i) => i.status === "pending")
-        .map((i) => `${i.name}${i.qty > 1 ? ` (x${i.qty})` : ""}`)
-    );
+  const pendingItems = trips.flatMap((t) =>
+    t.items
+      .filter((i) => i.status === "pending")
+      .map((i) => `${i.name}${i.qty > 1 ? ` (x${i.qty})` : ""}`)
+  );
 
   if (pendingItems.length === 0) {
     return NextResponse.json(
@@ -166,9 +162,9 @@ Suggest meals I can make this week.`;
 
   // Strip thinking tags, markdown fences, and any text before the JSON array
   let cleaned = raw
-    .replace(/<think>[\s\S]*?<\/think>/gi, "")  // remove <think>...</think> blocks
-    .replace(/^```(?:json)?\s*/im, "")           // opening fence
-    .replace(/\s*```\s*$/m, "")                  // closing fence
+    .replace(/<think>[\s\S]*?<\/think>/gi, "") // remove <think>...</think> blocks
+    .replace(/^```(?:json)?\s*/im, "") // opening fence
+    .replace(/\s*```\s*$/m, "") // closing fence
     .trim();
 
   // Extract just the JSON array — find first [ to last ]
@@ -183,7 +179,10 @@ Suggest meals I can make this week.`;
     meals = JSON.parse(cleaned);
   } catch {
     console.error("[suggest] JSON parse failed, raw:", cleaned.slice(0, 300));
-    return NextResponse.json({ error: "AI returned unexpected format. Try again.", raw: cleaned }, { status: 502 });
+    return NextResponse.json(
+      { error: "AI returned unexpected format. Try again.", raw: cleaned },
+      { status: 502 }
+    );
   }
 
   // Persist to DB
@@ -194,9 +193,9 @@ Suggest meals I can make this week.`;
       (meals as Array<Record<string, unknown>>).map((m) => ({
         name: String(m.name ?? ""),
         time: String(m.time ?? ""),
-        uses: Array.isArray(m.uses) ? m.uses as string[] : [],
-        ingredients: Array.isArray(m.ingredients) ? m.ingredients as string[] : [],
-        steps: Array.isArray(m.steps) ? m.steps as string[] : [],
+        uses: Array.isArray(m.uses) ? (m.uses as string[]) : [],
+        ingredients: Array.isArray(m.ingredients) ? (m.ingredients as string[]) : [],
+        steps: Array.isArray(m.steps) ? (m.steps as string[]) : [],
       }))
     );
   } catch (e) {

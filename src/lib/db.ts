@@ -196,10 +196,6 @@ export async function saveMealSuggestions(
 
 export async function deleteMealSuggestion(listId: string, id: string): Promise<void> {
   const db = supabaseAdmin();
-  const { error } = await db
-    .from("meal_suggestions")
-    .delete()
-    .eq("id", id)
-    .eq("list_id", listId);
+  const { error } = await db.from("meal_suggestions").delete().eq("id", id).eq("list_id", listId);
   if (error) throw error;
 }

@@ -24,8 +24,10 @@ function isAndroid() {
 }
 
 function isStandalone() {
-  return window.matchMedia("(display-mode: standalone)").matches ||
-    (window.navigator as { standalone?: boolean }).standalone === true;
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    (window.navigator as { standalone?: boolean }).standalone === true
+  );
 }
 
 export default function InstallBanner({ apiToken }: { apiToken: string }) {
@@ -98,9 +100,8 @@ export default function InstallBanner({ apiToken }: { apiToken: string }) {
               >
                 1
               </span>
-              Tap the{" "}
-              <Share size={13} style={{ display: "inline", margin: "0 2px" }} /> Share button at the
-              bottom
+              Tap the <Share size={13} style={{ display: "inline", margin: "0 2px" }} /> Share
+              button at the bottom
             </div>
             <div className="flex items-center gap-2 font-body text-xs" style={{ color: C.ink }}>
               <span
@@ -109,8 +110,7 @@ export default function InstallBanner({ apiToken }: { apiToken: string }) {
               >
                 2
               </span>
-              Scroll down and tap{" "}
-              <strong>&quot;Add to Home Screen&quot;</strong>{" "}
+              Scroll down and tap <strong>&quot;Add to Home Screen&quot;</strong>{" "}
               <Plus size={12} style={{ display: "inline" }} />
             </div>
           </div>
@@ -154,11 +154,11 @@ export default function InstallBanner({ apiToken }: { apiToken: string }) {
         )}
 
         {/* Share link */}
-        <div
-          className="rounded-xl p-2.5 mb-3"
-          style={{ background: C.pageBgSoft }}
-        >
-          <div className="font-body text-[10px] uppercase tracking-wide mb-1" style={{ color: C.sageOnDark }}>
+        <div className="rounded-xl p-2.5 mb-3" style={{ background: C.pageBgSoft }}>
+          <div
+            className="font-body text-[10px] uppercase tracking-wide mb-1"
+            style={{ color: C.sageOnDark }}
+          >
             Share this link — no password needed
           </div>
           <div className="flex items-center gap-2">
@@ -171,7 +171,10 @@ export default function InstallBanner({ apiToken }: { apiToken: string }) {
             <button
               onClick={copyLink}
               className="font-body text-[11px] rounded-lg px-2.5 py-1 flex-shrink-0 font-semibold"
-              style={{ background: linkCopied ? C.gold : C.pageBg, color: linkCopied ? C.pageBg : C.sageOnDark }}
+              style={{
+                background: linkCopied ? C.gold : C.pageBg,
+                color: linkCopied ? C.pageBg : C.sageOnDark,
+              }}
             >
               {linkCopied ? "Copied!" : "Copy"}
             </button>
