@@ -23,6 +23,7 @@ import {
 import type { Trip, Item } from "@/lib/types";
 import AccountModal from "./AccountModal";
 import AgentView from "./AgentView";
+import InstallBanner from "./InstallBanner";
 
 /* ---------------------------------- tokens --------------------------------- */
 const COLORS = {
@@ -1161,6 +1162,14 @@ export default function LedgerClient({
   const [tab, setTab] = useState("history");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showAccount, setShowAccount] = useState(false);
+  const [apiToken, setApiToken] = useState("");
+
+  useEffect(() => {
+    fetch("/api/account/token")
+      .then((r) => r.json())
+      .then((d) => setApiToken(d.apiToken ?? ""))
+      .catch(() => {});
+  }, []);
 
   // Sync a trip to the server
   const syncTrip = useCallback(async (trip: Trip) => {
@@ -1282,6 +1291,7 @@ export default function LedgerClient({
       <TabBar active={tab} setActive={setTab} />
 
       {showAccount && <AccountModal slug={slug} onClose={() => setShowAccount(false)} />}
+      {apiToken && <InstallBanner apiToken={apiToken} />}
     </div>
   );
 }

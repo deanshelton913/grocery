@@ -1,0 +1,24 @@
+{
+  "name": "Pantry Ledger",
+  "short_name": "Pantry",
+  "description": "Track grocery spend and reduce waste",
+  "start_url": "/ledger",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1F3329",
+  "theme_color": "#1F3329",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
