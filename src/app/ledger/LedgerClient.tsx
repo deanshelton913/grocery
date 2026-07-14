@@ -18,7 +18,7 @@ import {
   Pencil,
   AlertTriangle,
   Settings,
-  Plug,
+  Bot,
 } from "lucide-react";
 import type { Trip, Item } from "@/lib/types";
 import AccountModal from "./AccountModal";
@@ -1109,7 +1109,7 @@ function TabBar({ active, setActive }: { active: string; setActive: (k: string) 
     { key: "dashboard", label: "Overview", icon: LayoutDashboard },
     { key: "history", label: "Receipts", icon: ScrollText },
     { key: "log", label: "Add Trip", icon: PlusCircle },
-    { key: "agent", label: "Connect", icon: Plug },
+    { key: "agent", label: "Agent", icon: Bot },
   ];
   return (
     <div

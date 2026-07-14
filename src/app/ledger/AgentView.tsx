@@ -110,29 +110,15 @@ export default function AgentView() {
   return (
     <div className="px-4 pb-24 pt-4 space-y-5">
 
-      {/* MCP config */}
-      <div className="rounded-2xl p-4 space-y-3" style={{ background: C.paper }}>
-        <div className="font-display text-base" style={{ color: C.ink }}>
-          MCP server
-        </div>
-        <p className="font-body text-xs leading-relaxed" style={{ color: C.inkSoft }}>
-          Add this to your{" "}
-          <span style={{ color: C.ink, fontWeight: 600 }}>claude_desktop_config.json</span>,
-          Cursor MCP settings, or Kiro MCP settings. The agent can then call your grocery list
-          directly using native MCP tools.
-        </p>
-        <CopyBlock label="MCP client config (JSON)" value={mcpConfig} />
-      </div>
-
       {/* System prompt */}
       <div className="rounded-2xl p-4 space-y-3" style={{ background: C.paper }}>
         <div className="font-display text-base" style={{ color: C.ink }}>
           System prompt
         </div>
         <p className="font-body text-xs leading-relaxed" style={{ color: C.inkSoft }}>
-          If your agent doesn&apos;t support MCP, paste this into ChatGPT, Claude, or any AI
-          assistant as the system prompt. It gives the agent full access to your grocery list via
-          the REST API.
+          Paste this into ChatGPT, Claude, or any AI assistant as the system prompt. It gives the
+          agent full access to your grocery list — log receipts from a photo, mark items used or
+          wasted, and more.
         </p>
         <CopyBlock label="Paste as system prompt" value={systemPrompt} mono={false} />
         <div className="flex items-center gap-2">
@@ -149,6 +135,20 @@ export default function AgentView() {
             {helpUrl} <ExternalLink size={11} />
           </a>
         </div>
+      </div>
+
+      {/* MCP config */}
+      <div className="rounded-2xl p-4 space-y-3" style={{ background: C.paper }}>
+        <div className="font-display text-base" style={{ color: C.ink }}>
+          MCP server
+        </div>
+        <p className="font-body text-xs leading-relaxed" style={{ color: C.inkSoft }}>
+          Add this to your{" "}
+          <span style={{ color: C.ink, fontWeight: 600 }}>claude_desktop_config.json</span>,
+          Cursor MCP settings, or Kiro MCP settings. The agent can then call your grocery list
+          directly using native MCP tools.
+        </p>
+        <CopyBlock label="MCP client config (JSON)" value={mcpConfig} />
       </div>
 
     </div>
