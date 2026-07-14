@@ -18,7 +18,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Both passwords are required" }, { status: 400 });
     }
     if (newPassword.length < 4) {
-      return NextResponse.json({ error: "New password must be at least 4 characters" }, { status: 400 });
+      return NextResponse.json(
+        { error: "New password must be at least 4 characters" },
+        { status: 400 }
+      );
     }
 
     const list = await findListBySlug(session.slug);

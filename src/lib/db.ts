@@ -81,11 +81,7 @@ export async function upsertTrip(listId: string, trip: Trip): Promise<void> {
 
 export async function deleteTrip(listId: string, tripId: string): Promise<void> {
   const db = supabaseAdmin();
-  const { error } = await db
-    .from("trips")
-    .delete()
-    .eq("id", tripId)
-    .eq("list_id", listId);
+  const { error } = await db.from("trips").delete().eq("id", tripId).eq("list_id", listId);
   if (error) throw error;
 }
 
@@ -122,11 +118,7 @@ export async function findListBySlug(slug: string) {
 
 export async function findListByApiToken(token: string) {
   const db = supabaseAdmin();
-  const { data, error } = await db
-    .from("lists")
-    .select("id, slug")
-    .eq("api_token", token)
-    .single();
+  const { data, error } = await db.from("lists").select("id, slug").eq("api_token", token).single();
   if (error) return null;
   return data;
 }
@@ -144,18 +136,12 @@ export async function createList(slug: string, passwordHash: string, apiToken: s
 
 export async function updateListPassword(listId: string, passwordHash: string) {
   const db = supabaseAdmin();
-  const { error } = await db
-    .from("lists")
-    .update({ password_hash: passwordHash })
-    .eq("id", listId);
+  const { error } = await db.from("lists").update({ password_hash: passwordHash }).eq("id", listId);
   if (error) throw error;
 }
 
 export async function rotateApiToken(listId: string, newToken: string) {
   const db = supabaseAdmin();
-  const { error } = await db
-    .from("lists")
-    .update({ api_token: newToken })
-    .eq("id", listId);
+  const { error } = await db.from("lists").update({ api_token: newToken }).eq("id", listId);
   if (error) throw error;
 }

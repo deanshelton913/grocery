@@ -11,11 +11,5 @@ export default async function LedgerPage() {
 
   const trips = await getTrips(session.listId);
 
-  return (
-    <LedgerClient
-      initialTrips={trips}
-      listId={session.listId}
-      slug={session.slug}
-    />
-  );
+  return <LedgerClient initialTrips={trips} listId={session.listId} slug={session.slug} />;
 }

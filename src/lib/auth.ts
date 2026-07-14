@@ -27,7 +27,7 @@ export async function verifySession(token: string): Promise<SessionPayload | nul
 }
 
 export async function getSession(): Promise<SessionPayload | null> {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const token = cookieStore.get(COOKIE_NAME)?.value;
   if (!token) return null;
   return verifySession(token);
@@ -45,7 +45,9 @@ export function clearSessionCookie() {
 // Simple password hashing using Web Crypto (no bcrypt dependency needed)
 export async function hashPassword(password: string): Promise<string> {
   const salt = crypto.getRandomValues(new Uint8Array(16));
-  const saltHex = Array.from(salt).map((b) => b.toString(16).padStart(2, "0")).join("");
+  const saltHex = Array.from(salt)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
   const key = await crypto.subtle.importKey(
     "raw",
     new TextEncoder().encode(password),
@@ -88,5 +90,7 @@ export async function verifyPassword(password: string, stored: string): Promise<
 
 export function generateApiToken(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(32));
-  return Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return Array.from(bytes)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }

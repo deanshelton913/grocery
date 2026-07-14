@@ -7,13 +7,14 @@ import { deleteTrip } from "@/lib/db";
 
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: { tripId: string } }
+  { params }: { params: Promise<{ tripId: string }> }
 ) {
   try {
     const session = await getSession();
     if (!session) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
-    await deleteTrip(session.listId, params.tripId);
+    const { tripId } = await params;
+    await deleteTrip(session.listId, tripId);
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error("[DELETE /api/trips]", e);

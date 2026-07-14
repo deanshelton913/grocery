@@ -15,12 +15,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "slug and password are required" }, { status: 400 });
     }
 
-    const cleanSlug = slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+    const cleanSlug = slug
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
     if (cleanSlug.length < 2 || cleanSlug.length > 40) {
       return NextResponse.json({ error: "Title must be 2–40 characters" }, { status: 400 });
     }
     if (password.length < 4) {
-      return NextResponse.json({ error: "Password must be at least 4 characters" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Password must be at least 4 characters" },
+        { status: 400 }
+      );
     }
 
     const existing = await findListBySlug(cleanSlug);

@@ -70,14 +70,14 @@ export default function AuthPage() {
         {/* Card */}
         <div className="rounded-2xl p-6" style={{ background: C.paper }}>
           {/* Mode toggle */}
-          <div
-            className="flex rounded-xl mb-5 p-0.5"
-            style={{ background: C.paperSoft }}
-          >
+          <div className="flex rounded-xl mb-5 p-0.5" style={{ background: C.paperSoft }}>
             {(["login", "claim"] as Mode[]).map((m) => (
               <button
                 key={m}
-                onClick={() => { setMode(m); setError(""); }}
+                onClick={() => {
+                  setMode(m);
+                  setError("");
+                }}
                 className="flex-1 rounded-xl py-1.5 font-body text-sm font-medium transition-colors"
                 style={{
                   background: mode === m ? C.gold : "transparent",
@@ -153,21 +153,18 @@ export default function AuthPage() {
                 color: loading ? C.sageOnDark : C.pageBg,
               }}
             >
-              {loading
-                ? "..."
-                : mode === "login"
-                ? "Sign in"
-                : "Create my list"}
+              {loading ? "..." : mode === "login" ? "Sign in" : "Create my list"}
             </button>
           </form>
         </div>
 
         <p className="text-center font-body text-[11px] mt-4" style={{ color: C.sageOnDark }}>
-          {mode === "login"
-            ? "No account yet? "
-            : "Already have a list? "}
+          {mode === "login" ? "No account yet? " : "Already have a list? "}
           <button
-            onClick={() => { setMode(mode === "login" ? "claim" : "login"); setError(""); }}
+            onClick={() => {
+              setMode(mode === "login" ? "claim" : "login");
+              setError("");
+            }}
             className="underline"
             style={{ color: C.goldSoft }}
           >
