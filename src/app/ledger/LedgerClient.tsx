@@ -3,9 +3,11 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import {
   Receipt,
-  PieChart,
+  LayoutDashboard,
   Plus,
-  History as HistoryIcon,
+  PlusCircle,
+  ScrollText,
+  Search,
   Trash2,
   ChevronDown,
   ChevronUp,
@@ -16,9 +18,11 @@ import {
   Pencil,
   AlertTriangle,
   Settings,
+  Plug,
 } from "lucide-react";
 import type { Trip, Item } from "@/lib/types";
 import AccountModal from "./AccountModal";
+import AgentView from "./AgentView";
 
 /* ---------------------------------- tokens --------------------------------- */
 const COLORS = {
@@ -731,6 +735,7 @@ function ReceiptCard({
   onCycleStatus,
   onDelete,
   onEditTrip,
+  highlightItemIds = new Set(),
 }: {
   trip: Trip;
   expanded: boolean;
@@ -738,6 +743,7 @@ function ReceiptCard({
   onCycleStatus: (tripId: string, itemId: string) => void;
   onDelete: (tripId: string) => void;
   onEditTrip: (t: Trip) => void;
+  highlightItemIds?: Set<string>;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<Trip>(trip);
@@ -816,7 +822,14 @@ function ReceiptCard({
                     <div
                       key={it.id}
                       className="flex items-center justify-between gap-2 font-mono-ledger text-[12px]"
-                      style={{ color: COLORS.ink }}
+                      style={{
+                        color: COLORS.ink,
+                        background: highlightItemIds.has(it.id) ? `${COLORS.gold}22` : "transparent",
+                        borderRadius: 6,
+                        padding: highlightItemIds.has(it.id) ? "2px 4px" : "2px 0",
+                        marginLeft: highlightItemIds.has(it.id) ? -4 : 0,
+                        marginRight: highlightItemIds.has(it.id) ? -4 : 0,
+                      }}
                     >
                       <div className="flex items-center gap-1.5 min-w-0">
                         <CategoryDot catKey={it.category} />
@@ -994,39 +1007,108 @@ function HistoryView({
   expandedId: string | null;
   setExpandedId: (id: string | null) => void;
 }) {
+  const [query, setQuery] = useState("");
   const sorted = useMemo(() => [...trips].sort((a, b) => (a.date < b.date ? 1 : -1)), [trips]);
+
+  const q = query.trim().toLowerCase();
+
+  // Which trips match the search, and which item ids match
+  const { filteredTrips, matchedItemIds } = useMemo(() => {
+    if (!q) return { filteredTrips: sorted, matchedItemIds: new Set<string>() };
+    const matched = new Set<string>();
+    const filtered = sorted.filter((trip) => {
+      const storeMatch = trip.store.toLowerCase().includes(q);
+      const itemMatches = trip.items.filter(
+        (it) =>
+          it.name.toLowerCase().includes(q) ||
+          it.category.toLowerCase().includes(q)
+      );
+      itemMatches.forEach((it) => matched.add(it.id));
+      return storeMatch || itemMatches.length > 0;
+    });
+    return { filteredTrips: filtered, matchedItemIds: matched };
+  }, [q, sorted]);
+
+  // Auto-expand trips that have matched items when searching
+  const effectiveExpandedId = useMemo(() => {
+    if (!q) return expandedId;
+    // If only one trip matches, auto-expand it
+    if (filteredTrips.length === 1) return filteredTrips[0].id;
+    return expandedId;
+  }, [q, filteredTrips, expandedId]);
+
   if (sorted.length === 0) {
     return (
-      <div
-        className="px-4 py-10 text-center font-body text-sm"
-        style={{ color: COLORS.sageOnDark }}
-      >
+      <div className="px-4 py-10 text-center font-body text-sm" style={{ color: COLORS.sageOnDark }}>
         No trips logged yet. Tap &quot;Add Trip&quot; to get started.
       </div>
     );
   }
+
   return (
-    <div className="px-4 pb-6 pt-1">
-      {sorted.map((trip) => (
-        <ReceiptCard
-          key={trip.id}
-          trip={trip}
-          expanded={expandedId === trip.id}
-          onToggle={() => setExpandedId(expandedId === trip.id ? null : trip.id)}
-          onCycleStatus={onCycleStatus}
-          onDelete={onDelete}
-          onEditTrip={onEditTrip}
-        />
-      ))}
+    <div className="pb-6 pt-1">
+      {/* Search bar */}
+      <div className="px-4 mb-3">
+        <div
+          className="flex items-center gap-2 rounded-xl px-3 py-2"
+          style={{ background: COLORS.pageBgSoft }}
+        >
+          <Search size={15} color={COLORS.sageOnDark} />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search items, stores, categories…"
+            className="font-body text-sm flex-1 bg-transparent outline-none"
+            style={{ color: COLORS.cream }}
+          />
+          {query && (
+            <button onClick={() => setQuery("")}>
+              <X size={14} color={COLORS.sageOnDark} />
+            </button>
+          )}
+        </div>
+        {q && (
+          <div className="font-body text-[11px] mt-1.5 px-1" style={{ color: COLORS.sageOnDark }}>
+            {filteredTrips.length === 0
+              ? "No results"
+              : `${matchedItemIds.size || filteredTrips.length} result${matchedItemIds.size !== 1 ? "s" : ""} across ${filteredTrips.length} trip${filteredTrips.length !== 1 ? "s" : ""}`}
+          </div>
+        )}
+      </div>
+
+      {/* Receipt cards */}
+      <div className="px-4">
+        {filteredTrips.length === 0 ? (
+          <div className="py-8 text-center font-body text-sm" style={{ color: COLORS.sageOnDark }}>
+            No trips match &quot;{query}&quot;
+          </div>
+        ) : (
+          filteredTrips.map((trip) => (
+            <ReceiptCard
+              key={trip.id}
+              trip={trip}
+              expanded={effectiveExpandedId === trip.id}
+              onToggle={() =>
+                setExpandedId(effectiveExpandedId === trip.id ? null : trip.id)
+              }
+              onCycleStatus={onCycleStatus}
+              onDelete={onDelete}
+              onEditTrip={onEditTrip}
+              highlightItemIds={matchedItemIds}
+            />
+          ))
+        )}
+      </div>
     </div>
   );
 }
 
 function TabBar({ active, setActive }: { active: string; setActive: (k: string) => void }) {
   const tabs = [
-    { key: "dashboard", label: "Overview", icon: PieChart },
-    { key: "log", label: "Add Trip", icon: Plus },
-    { key: "history", label: "History", icon: HistoryIcon },
+    { key: "dashboard", label: "Overview", icon: LayoutDashboard },
+    { key: "history", label: "Receipts", icon: ScrollText },
+    { key: "log", label: "Add Trip", icon: PlusCircle },
+    { key: "agent", label: "Connect", icon: Plug },
   ];
   return (
     <div
@@ -1046,7 +1128,7 @@ function TabBar({ active, setActive }: { active: string; setActive: (k: string) 
               <Icon
                 size={18}
                 color={isActive ? COLORS.gold : COLORS.sageOnDark}
-                strokeWidth={isActive ? 2.4 : 2}
+                strokeWidth={isActive ? 2.2 : 1.75}
               />
               <span
                 className="font-body text-[10px]"
@@ -1076,7 +1158,7 @@ export default function LedgerClient({
   slug: string;
 }) {
   const [trips, setTrips] = useState<Trip[]>(initialTrips);
-  const [tab, setTab] = useState("dashboard");
+  const [tab, setTab] = useState("history");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showAccount, setShowAccount] = useState(false);
 
@@ -1188,6 +1270,7 @@ export default function LedgerClient({
             setExpandedId={setExpandedId}
           />
         )}
+        {tab === "agent" && <AgentView />}
 
         <div className="text-center pb-24 pt-1">
           <span className="font-body text-[10px]" style={{ color: `${COLORS.sageOnDark}99` }}>

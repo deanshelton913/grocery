@@ -12,6 +12,7 @@
     "format:check": "prettier --check src"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@supabase/supabase-js": "2.110.3",
     "@upstash/ratelimit": "2.0.8",
     "@upstash/redis": "1.38.0",

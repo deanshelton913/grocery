@@ -87,14 +87,14 @@ export default function AccountModal({ slug, onClose }: { slug: string; onClose:
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center"
+      className="fixed inset-0 z-50 flex items-center justify-center px-4"
       style={{ background: "rgba(0,0,0,0.5)" }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
-        className="w-full max-w-md rounded-t-2xl p-5 pb-8 space-y-5"
+        className="w-full max-w-md rounded-2xl p-5 pb-6 space-y-5"
         style={{ background: C.paper, maxHeight: "90vh", overflowY: "auto" }}
       >
         {/* Header */}
