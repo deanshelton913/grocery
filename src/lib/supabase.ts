@@ -1,9 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 
-// Client-side client (anon key, used only for public reads if needed)
+// Client-side client (publishable/anon key)
+// Supabase renamed NEXT_PUBLIC_SUPABASE_ANON_KEY → NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 export const supabaseClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
 );
 
 // Server-side admin client (service role key — never exposed to browser)
