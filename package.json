@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint src",
+    "migrate": "tsx scripts/migrate.ts",
     "lint:fix": "eslint src --fix",
     "format": "prettier --write src",
     "format:check": "prettier --check src"
@@ -30,6 +30,7 @@
     "@typescript-eslint/eslint-plugin": "^8.64.0",
     "@typescript-eslint/parser": "^8.64.0",
     "autoprefixer": "10.4.21",
+    "dotenv": "^17.4.2",
     "eslint": "9.31.0",
     "eslint-config-next": "16.2.10",
     "eslint-plugin-react": "^7.37.5",
@@ -37,6 +38,7 @@
     "postcss": "8.5.6",
     "prettier": "^3.9.5",
     "tailwindcss": "3.4.19",
+    "tsx": "^4.23.1",
     "typescript": "5.9.3"
   }
 }

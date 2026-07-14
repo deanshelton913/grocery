@@ -1,3 +1,5 @@
+export type ItemLocation = "fridge" | "freezer" | "pantry" | "counter";
+
 export interface Item {
   id: string;
   name: string;
@@ -5,6 +7,7 @@ export interface Item {
   price: number;
   qty: number;
   status: "pending" | "used" | "partial" | "wasted";
+  location?: ItemLocation;
 }
 
 export interface Trip {

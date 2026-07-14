@@ -111,15 +111,17 @@ Body:
   "status": "used"                 // one of: pending, used, partial, wasted
 }
 
-- "used"    — fully consumed, no waste
-- "partial" — partially used (counts as 50% waste in reports)
-- "wasted"  — thrown away unused
-- "pending" — not yet used (default for new items)
+- "used"    — fully consumed, no waste ("Used Up" in the UI)
+- "partial" — opened and in use, some remains ("In Use" in the UI)
+- "wasted"  — spoiled or thrown away unused
+- "pending" — just purchased, available to use ("Available" in the UI)
 
 Use this when the user says things like:
-  "I used the chicken thighs" → status: "used"
-  "The avocados went bad"     → status: "wasted"
-  "Half the bread went stale" → status: "partial"
+  "I used the chicken thighs"        → status: "used"
+  "I started the avocados"           → status: "partial"
+  "The avocados went bad"            → status: "wasted"
+  "Half the bread went stale"        → status: "wasted" (or "partial" if some remains)
+  "We still have some salsa"         → status: "partial"
 
 ### 4. Update item details (name, price, qty, category, or status)
 PUT ${base}/api/agent

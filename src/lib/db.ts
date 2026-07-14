@@ -5,6 +5,13 @@
 import { supabaseAdmin } from "./supabase";
 import type { Trip, Item } from "./types";
 
+/** Auto-guess storage location from category when not explicitly set */
+function guessLocation(category: string): string {
+  if (category === "frozen") return "freezer";
+  if (["meat", "dairy", "produce", "deli"].includes(category)) return "fridge";
+  return "pantry";
+}
+
 // --------------------------------------------------------------------------
 // Trips
 // --------------------------------------------------------------------------
@@ -25,7 +32,7 @@ export async function getTrips(listId: string): Promise<Trip[]> {
 
   const { data: itemRows, error: itemErr } = await db
     .from("items")
-    .select("id, trip_id, name, category, price, qty, status")
+    .select("id, trip_id, name, category, price, qty, status, location")
     .in("trip_id", tripIds);
 
   if (itemErr) throw itemErr;
@@ -44,6 +51,7 @@ export async function getTrips(listId: string): Promise<Trip[]> {
         price: Number(it.price),
         qty: it.qty,
         status: it.status as Item["status"],
+        location: (it.location ?? "fridge") as Item["location"],
       })),
   }));
 }
@@ -73,6 +81,7 @@ export async function upsertTrip(listId: string, trip: Trip): Promise<void> {
       price: it.price,
       qty: it.qty,
       status: it.status,
+      location: it.location ?? guessLocation(it.category),
       updated_at: new Date().toISOString(),
     }))
   );
@@ -143,5 +152,54 @@ export async function updateListPassword(listId: string, passwordHash: string) {
 export async function rotateApiToken(listId: string, newToken: string) {
   const db = supabaseAdmin();
   const { error } = await db.from("lists").update({ api_token: newToken }).eq("id", listId);
+  if (error) throw error;
+}
+
+// --------------------------------------------------------------------------
+// Meal suggestions
+// --------------------------------------------------------------------------
+
+export interface MealSuggestion {
+  id: string;
+  name: string;
+  time: string;
+  uses: string[];
+  ingredients: string[];
+  steps: string[];
+  created_at: string;
+}
+
+export async function getMealSuggestions(listId: string): Promise<MealSuggestion[]> {
+  const db = supabaseAdmin();
+  const { data, error } = await db
+    .from("meal_suggestions")
+    .select("id, name, time, uses, ingredients, steps, created_at")
+    .eq("list_id", listId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as MealSuggestion[];
+}
+
+export async function saveMealSuggestions(
+  listId: string,
+  meals: Omit<MealSuggestion, "id" | "created_at">[]
+): Promise<MealSuggestion[]> {
+  const db = supabaseAdmin();
+  const rows = meals.map((m) => ({ ...m, list_id: listId }));
+  const { data, error } = await db
+    .from("meal_suggestions")
+    .insert(rows)
+    .select("id, name, time, uses, ingredients, steps, created_at");
+  if (error) throw error;
+  return (data ?? []) as MealSuggestion[];
+}
+
+export async function deleteMealSuggestion(listId: string, id: string): Promise<void> {
+  const db = supabaseAdmin();
+  const { error } = await db
+    .from("meal_suggestions")
+    .delete()
+    .eq("id", id)
+    .eq("list_id", listId);
   if (error) throw error;
 }

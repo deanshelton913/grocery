@@ -84,7 +84,7 @@ const TOOLS = [
   {
     name: "update_item_status",
     description:
-      "Mark a grocery item as used, partial, wasted, or pending. Call list_trips first to get IDs. Values: used=fully consumed, partial=half used (50% waste), wasted=thrown away, pending=not yet used.",
+      "Update the status of a grocery item. Values: pending=available (just bought), partial=opened/in use (some remains), used=fully consumed (no waste), wasted=spoiled or thrown away.",
     inputSchema: {
       type: "object",
       properties: {

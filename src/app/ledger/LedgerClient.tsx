@@ -19,11 +19,13 @@ import {
   AlertTriangle,
   Settings,
   Bot,
+  ChefHat,
 } from "lucide-react";
 import type { Trip, Item } from "@/lib/types";
 import AccountModal from "./AccountModal";
 import AgentView from "./AgentView";
 import InstallBanner from "./InstallBanner";
+import MealsView from "./MealsView";
 
 /* ---------------------------------- tokens --------------------------------- */
 const COLORS = {
@@ -57,12 +59,28 @@ const CATEGORIES = [
   { key: "other", label: "Other", color: "#948C78" },
 ];
 const catByKey = Object.fromEntries(CATEGORIES.map((c) => [c.key, c]));
-const STATUS_ORDER: Item["status"][] = ["pending", "used", "partial", "wasted"];
+
+const LOCATIONS = [
+  { key: "fridge",  label: "Fridge",  icon: "🧊" },
+  { key: "freezer", label: "Freezer", icon: "❄️"  },
+  { key: "pantry",  label: "Pantry",  icon: "🗄️"  },
+  { key: "counter", label: "Counter", icon: "🍌"  },
+] as const;
+type LocationKey = typeof LOCATIONS[number]["key"];
+
+function cycleLocation(loc: LocationKey | undefined): LocationKey {
+  const order: LocationKey[] = ["fridge", "freezer", "pantry", "counter"];
+  const idx = order.indexOf(loc ?? "fridge");
+  return order[(idx + 1) % order.length];
+}
+// Cycle order: just bought → opened/started → fully consumed (or thrown away)
+// Wasted is a separate end-state, not on the main cycle path
+const STATUS_ORDER: Item["status"][] = ["pending", "partial", "used", "wasted"];
 const STATUS = {
-  pending: { label: "Pending", color: COLORS.neutral, icon: Circle },
-  used: { label: "Used", color: COLORS.sage, icon: Check },
-  partial: { label: "Partial", color: COLORS.gold, icon: Minus },
-  wasted: { label: "Wasted", color: COLORS.rust, icon: X },
+  pending: { label: "Available", color: COLORS.sageOnDark, icon: Circle },
+  partial: { label: "In Use",    color: COLORS.gold,       icon: Minus  },
+  used:    { label: "Used Up",   color: COLORS.sage,       icon: Check  },
+  wasted:  { label: "Wasted",    color: COLORS.rust,       icon: X      },
 };
 
 /* --------------------------------- helpers --------------------------------- */
@@ -166,6 +184,21 @@ function tripTotal(trip: Trip) {
 }
 
 /* ------------------------------ small components --------------------------- */
+function LocationBadge({ location, onCycle }: { location?: LocationKey; onCycle?: () => void }) {
+  const loc = LOCATIONS.find((l) => l.key === (location ?? "fridge")) ?? LOCATIONS[0];
+  const el = (
+    <span
+      className="font-body text-[10px] rounded-full px-1.5 py-0.5 flex-shrink-0 select-none"
+      style={{ background: `${COLORS.pageBgSoft}`, color: COLORS.sageOnDark, cursor: onCycle ? "pointer" : "default" }}
+      title={onCycle ? `Storage: ${loc.label} — tap to change` : loc.label}
+    >
+      {loc.icon} {loc.label}
+    </span>
+  );
+  if (onCycle) return <button onClick={onCycle} className="flex-shrink-0">{el}</button>;
+  return el;
+}
+
 function CategoryDot({ catKey, size = 8 }: { catKey: string; size?: number }) {
   const c = catByKey[catKey] || catByKey.other;
   return (
@@ -205,7 +238,7 @@ function StatusStamp({
         fontWeight: 600,
         letterSpacing: "0.02em",
       }}
-      title="Tap to update status"
+      title="Tap to cycle: Available → In Use → Used Up → Wasted"
     >
       <Icon size={small ? 11 : 12} strokeWidth={3} />
       {s.label}
@@ -367,7 +400,7 @@ function DashboardView({ trips, goToHistory }: { trips: Trip[]; goToHistory: () 
             <span className="font-semibold" style={{ color: COLORS.goldSoft }}>
               {pendingCount} item{pendingCount === 1 ? "" : "s"}
             </span>{" "}
-            waiting to be marked used or wasted — review in History.
+            still available — mark them as you use them up.
           </span>
         </button>
       )}
@@ -734,6 +767,7 @@ function ReceiptCard({
   expanded,
   onToggle,
   onCycleStatus,
+  onCycleLocation,
   onDelete,
   onEditTrip,
   highlightItemIds = new Set(),
@@ -742,6 +776,7 @@ function ReceiptCard({
   expanded: boolean;
   onToggle: () => void;
   onCycleStatus: (tripId: string, itemId: string) => void;
+  onCycleLocation: (tripId: string, itemId: string) => void;
   onDelete: (tripId: string) => void;
   onEditTrip: (t: Trip) => void;
   highlightItemIds?: Set<string>;
@@ -841,6 +876,10 @@ function ReceiptCard({
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
                         <span>{money(it.price * it.qty)}</span>
+                        <LocationBadge
+                          location={it.location as LocationKey}
+                          onCycle={() => onCycleLocation(trip.id, it.id)}
+                        />
                         <StatusStamp
                           status={it.status}
                           small
@@ -996,6 +1035,7 @@ function ReceiptCard({
 function HistoryView({
   trips,
   onCycleStatus,
+  onCycleLocation,
   onDelete,
   onEditTrip,
   expandedId,
@@ -1003,6 +1043,7 @@ function HistoryView({
 }: {
   trips: Trip[];
   onCycleStatus: (t: string, i: string) => void;
+  onCycleLocation: (t: string, i: string) => void;
   onDelete: (t: string) => void;
   onEditTrip: (t: Trip) => void;
   expandedId: string | null;
@@ -1093,6 +1134,7 @@ function HistoryView({
                 setExpandedId(effectiveExpandedId === trip.id ? null : trip.id)
               }
               onCycleStatus={onCycleStatus}
+              onCycleLocation={onCycleLocation}
               onDelete={onDelete}
               onEditTrip={onEditTrip}
               highlightItemIds={matchedItemIds}
@@ -1109,6 +1151,7 @@ function TabBar({ active, setActive }: { active: string; setActive: (k: string) 
     { key: "dashboard", label: "Overview", icon: LayoutDashboard },
     { key: "history", label: "Receipts", icon: ScrollText },
     { key: "log", label: "Add Trip", icon: PlusCircle },
+    { key: "meals", label: "Meals", icon: ChefHat },
     { key: "agent", label: "Agent", icon: Bot },
   ];
   return (
@@ -1208,6 +1251,24 @@ export default function LedgerClient({
     syncTrip(trip);
   };
 
+  const handleCycleLocation = (tripId: string, itemId: string) => {
+    setTrips((prev) => {
+      const next = prev.map((t) => {
+        if (t.id !== tripId) return t;
+        return {
+          ...t,
+          items: t.items.map((it) => {
+            if (it.id !== itemId) return it;
+            return { ...it, location: cycleLocation(it.location as LocationKey) };
+          }),
+        };
+      });
+      const updated = next.find((t) => t.id === tripId);
+      if (updated) syncTrip(updated);
+      return next;
+    });
+  };
+
   const handleCycleStatus = (tripId: string, itemId: string) => {
     setTrips((prev) => {
       const next = prev.map((t) => {
@@ -1273,6 +1334,7 @@ export default function LedgerClient({
           <HistoryView
             trips={trips}
             onCycleStatus={handleCycleStatus}
+            onCycleLocation={handleCycleLocation}
             onDelete={handleDeleteTrip}
             onEditTrip={handleEditTrip}
             expandedId={expandedId}
@@ -1280,6 +1342,7 @@ export default function LedgerClient({
           />
         )}
         {tab === "agent" && <AgentView />}
+        {tab === "meals" && <MealsView trips={trips} />}
 
         <div className="text-center pb-24 pt-1">
           <span className="font-body text-[10px]" style={{ color: `${COLORS.sageOnDark}99` }}>
